@@ -5,8 +5,9 @@ build:
   - chmod +x build.sh
   - ./build.sh
   - cp target/IRCBouncer.jar .
+  - ls -la *
   artifacts:
     paths:
-    - TwitchBot.jar
+    - IRCBouncer.jar
     - config.ini
     - accounts.ini

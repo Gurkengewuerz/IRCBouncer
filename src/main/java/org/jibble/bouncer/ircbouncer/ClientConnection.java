@@ -99,7 +99,7 @@ public class ClientConnection extends Thread {
             JBouncerManager.log(user.getLogin() + " logged in successfully from " + socket.getInetAddress().getHostName());
             user.setSaver(bouncer);
             boolean gettingInput = true;
-            
+
             for (String s : user.getSaver().load()) {
                 if (s.equals("")) {
                     continue;
@@ -115,14 +115,26 @@ public class ClientConnection extends Thread {
                 String hash = splittet[4];
                 String channels = splittet[5];
 
-                sendRawLine(METHOD + "Da der Server neugestartet wurde, werden die letzten Server geladen!");
-                server = new ServerConnection(ip, Integer.parseInt(IPport), passwort, nick, user, channels.split(","));
-                server.add(this);
-                gettingInput = false;
-                bouncer.add(name, server);
-                sendRawLine(METHOD + "LADE: " + name + " => " + ip + " => " + channels);
+                boolean canAdd = true;
+                Iterator it = bouncer.getServers().keySet().iterator();
+                while (it.hasNext()) {
+                    String key = (String) it.next();
+                    ServerConnection servertmp = (ServerConnection) bouncer.getServers().get(key);
+                    if (key.equalsIgnoreCase(name) && servertmp.getServer().equalsIgnoreCase(ip)) {
+                        canAdd = false;
+                    }
+                }
+                
+                if (canAdd) {
+                    sendRawLine(METHOD + "Da der Server neugestartet wurde, werden die letzten Server geladen!");
+                    server = new ServerConnection(ip, Integer.parseInt(IPport), passwort, nick, user, channels.split(","));
+                    server.add(this);
+                    gettingInput = false;
+                    bouncer.add(name, server);
+                    sendRawLine(METHOD + "LADE: " + name + " => " + ip + " => " + channels);
+                }
             }
-            
+
             while (gettingInput) {
                 HashMap servers = bouncer.getServers();
                 synchronized (servers) {

@@ -45,7 +45,7 @@ public class JBouncerMain {
                 // Keep the default value;
             }
         }
-
+        
         String historyStr = p.getProperty("HistoryLimit");
         if (historyStr != null) {
             try {

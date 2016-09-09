@@ -50,7 +50,7 @@ public class Saver {
 
         FileWriter writer = new FileWriter(f);
         for (String str : userBouncer.getCSVs()) {
-            writer.write(str);
+            writer.write(str + "\r\n");
         }
         writer.close();
 
@@ -66,7 +66,7 @@ public class Saver {
 
         FileWriter writer = new FileWriter(f);
         for (String str : list) {
-            writer.write(str);
+            writer.write(str + "\r\n");
         }
         writer.close();
 

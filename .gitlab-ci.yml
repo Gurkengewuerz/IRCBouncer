@@ -7,6 +7,7 @@ build:
   - cp target/IRCBouncer.jar .
   - ls -la *
   artifacts:
+    name: "IRCBouncer_${CI_BUILD_REF_NAME}"
     paths:
     - IRCBouncer.jar
     - config.ini

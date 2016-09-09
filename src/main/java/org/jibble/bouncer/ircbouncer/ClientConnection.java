@@ -100,7 +100,8 @@ public class ClientConnection extends Thread {
             user.setSaver(bouncer);
             boolean gettingInput = true;
 
-            for (String s : user.getSaver().load()) {
+            String[] listServers = user.getSaver().load();
+            for (String s : listServers) {
                 if (s.equals("")) {
                     continue;
                 }
@@ -124,12 +125,10 @@ public class ClientConnection extends Thread {
                         canAdd = false;
                     }
                 }
-                
+
                 if (canAdd) {
                     sendRawLine(METHOD + "Da der Server neugestartet wurde, werden die letzten Server geladen!");
                     server = new ServerConnection(ip, Integer.parseInt(IPport), passwort, nick, user, channels.split(","));
-                    server.add(this);
-                    gettingInput = false;
                     bouncer.add(name, server);
                     sendRawLine(METHOD + "LADE: " + name + " => " + ip + " => " + channels);
                 }

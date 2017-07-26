@@ -5,6 +5,7 @@ script:
     - chmod +x build.sh
     - ./build.sh
     - mkdir Release/
+    - mkdir Release/saves/
     - cp target/IRCBouncer.jar Release/
     - cp ./*.ini Release/
     - zip -r release.zip Release/

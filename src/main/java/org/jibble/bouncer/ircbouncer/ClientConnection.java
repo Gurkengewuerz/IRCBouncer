@@ -16,9 +16,13 @@ $Id: ClientConnection.java,v 1.3 2004/03/01 19:13:37 pjm2 Exp $
 package org.jibble.bouncer.ircbouncer;
 
 import org.jibble.pircbot.Colors;
+
 import java.io.*;
-import java.net.*;
-import java.util.*;
+import java.net.Socket;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
 
 public class ClientConnection extends Thread {
 
@@ -79,6 +83,7 @@ public class ClientConnection extends Thread {
 
                         bouncer = manager.getBouncer(user);
                         if (bouncer != null) {
+                            nick = login;
                             break;
                         }
 
@@ -97,43 +102,7 @@ public class ClientConnection extends Thread {
             }
 
             JBouncerManager.log(user.getLogin() + " logged in successfully from " + socket.getInetAddress().getHostName());
-            user.setSaver(bouncer);
             boolean gettingInput = true;
-
-            String[] listServers = user.getSaver().load();
-            for (String s : listServers) {
-                if (s.equals("")) {
-                    continue;
-                }
-                String[] splittet = s.split(";");
-                String name = splittet[0];
-                String ip = splittet[1];
-                String IPport = splittet[2];
-                String passwort = splittet[3];
-                if (passwort.equals("null")) {
-                    passwort = null;
-                }
-                String hash = splittet[4];
-                String channels = splittet[5];
-
-                boolean canAdd = true;
-                Iterator it = bouncer.getServers().keySet().iterator();
-                while (it.hasNext()) {
-                    String key = (String) it.next();
-                    ServerConnection servertmp = (ServerConnection) bouncer.getServers().get(key);
-                    if (key.equalsIgnoreCase(name) && servertmp.getServer().equalsIgnoreCase(ip)) {
-                        canAdd = false;
-                    }
-                }
-
-                if (canAdd) {
-                    sendRawLine(METHOD + "Da der Server neugestartet wurde, werden die letzten Server geladen!");
-                    server = new ServerConnection(ip, Integer.parseInt(IPport), passwort, nick, user, channels.split(","));
-                    bouncer.add(name, server);
-                    sendRawLine(METHOD + "LADE: " + name + " => " + ip + " => " + channels);
-                }
-            }
-
             while (gettingInput) {
                 HashMap servers = bouncer.getServers();
                 synchronized (servers) {

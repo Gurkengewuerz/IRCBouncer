@@ -75,7 +75,20 @@ public class JBouncer {
         return csv.toArray(new String[0]);
     }
 
+    public boolean isConntectedTo(String name, String ip, int port) {
+        synchronized (servers) {
+            for (Map.Entry<String, ServerConnection> entry : servers.entrySet()) {
+                String key = entry.getKey();
+                ServerConnection value = entry.getValue();
+                if (key.equalsIgnoreCase(name) && value.getServer().equalsIgnoreCase(ip) && value.getPort() == port) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     private User user;
-    private HashMap servers = new HashMap();
+    private HashMap<String, ServerConnection> servers = new HashMap();
 
 }

@@ -15,8 +15,14 @@ $Id: JBouncerMain.java,v 1.3 2004/03/01 19:13:37 pjm2 Exp $
  */
 package org.jibble.bouncer.ircbouncer;
 
-import java.util.*;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileInputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class JBouncerMain {
 
@@ -25,7 +31,7 @@ public class JBouncerMain {
     public static String prefix = "Jibber";
     public static String realname = "Modified by Gurkengewuerz";
     static String tmp;
-    
+
     public static void main(String[] args) throws Exception {
 
         Properties p = new Properties();
@@ -45,7 +51,7 @@ public class JBouncerMain {
                 // Keep the default value;
             }
         }
-        
+
         String historyStr = p.getProperty("HistoryLimit");
         if (historyStr != null) {
             try {
@@ -72,7 +78,7 @@ public class JBouncerMain {
                 // Keep the default value;
             }
         }
-        
+
         tmp = p.getProperty("RealName");
         if (tmp != null) {
             try {
@@ -83,7 +89,7 @@ public class JBouncerMain {
         }
 
         // Populate the HashMap of bouncers (one per user).
-        HashMap bouncers = new HashMap();
+        HashMap<User, JBouncer> bouncers = new HashMap();
         try {
             BufferedReader reader = new BufferedReader(new FileReader("./accounts.ini"));
             String line = null;
@@ -95,7 +101,9 @@ public class JBouncerMain {
                     String password = parts[1];
                     User user = new User(login, password);
                     if (!login.startsWith("#") && !bouncers.containsKey(user)) {
-                        bouncers.put(user, new JBouncer(user));
+                        JBouncer bouncer = new JBouncer(user);
+                        bouncers.put(user, bouncer);
+                        user.setSaver(bouncer);
                         JBouncerManager.log("Created bouncer for " + login);
                     }
                 }
@@ -112,6 +120,36 @@ public class JBouncerMain {
 
         JBouncerManager.log("*** JBouncer ready to accept connections on port " + port);
 
-    }
+        bouncers.forEach((user, jBouncer) -> {
+            if (user == null || jBouncer == null) return;
+            String[] listServers;
+            try {
+                listServers = user.getSaver().load();
+            } catch (IOException e) {
+                Logger.getLogger(JBouncerMain.class.getName()).log(Level.SEVERE, null, e);
+                return;
+            }
+            for (String s : listServers) {
+                if (s.equals("")) {
+                    continue;
+                }
+                String[] splittet = s.split(";");
+                String name = splittet[0];
+                String ip = splittet[1];
+                String IPport = splittet[2];
+                String passwort = splittet[3];
+                if (passwort.equals("null")) {
+                    passwort = null;
+                }
+                String hash = splittet[4];
+                String channels = splittet[5];
 
+                if (!jBouncer.isConntectedTo(name, ip, Integer.parseInt(IPport))) {
+                    jBouncer.add(name, new ServerConnection(ip, Integer.parseInt(IPport), passwort, user.getLogin(), user, channels.split(",")));
+                    JBouncerManager.log("Login to " + user.getLogin() + "@" + ip + ":" + IPport + " " + channels);
+                }
+            }
+        });
+
+    }
 }

@@ -1,0 +1,10 @@
+build.xml
+manifest.mf
+build/
+dist/
+nbproject/
+target/
+saves/
+nbactions.xml
+*.iml
+.idea/

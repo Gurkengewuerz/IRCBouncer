@@ -17,7 +17,11 @@ package org.jibble.bouncer.ircbouncer;
 
 import org.jibble.pircbot.Colors;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
@@ -79,15 +83,26 @@ public class ClientConnection extends Thread {
                     if (parts.length == 2) {
                         String login = parts[0];
                         String password = parts[1];
-                        user = new User(login, password);
 
-                        bouncer = manager.getBouncer(user);
-                        if (bouncer != null) {
-                            nick = login;
-                            break;
+                        HashMap<User, JBouncer> bouncers = new HashMap<>(manager.getBouncers());
+                        for (User checkedUser : bouncers.keySet()) {
+                            if (checkedUser.getLogin().equals(login) && checkedUser.getPassword().equals(password)) {
+                                user = checkedUser;
+                                break;
+                            }
                         }
 
-                        JBouncerManager.log("Failed login attempt from " + socket.getInetAddress().getHostName() + " (" + user.getLogin() + "/" + user.getPassword() + ")");
+                        if (user != null) {
+                            bouncer = manager.getBouncer(user);
+                            if (bouncer != null) {
+                                nick = login;
+                                break;
+                            } else {
+                                JBouncerManager.log("No Bouncer found");
+                            }
+                        }
+
+                        JBouncerManager.log("Failed login attempt from " + socket.getInetAddress().getHostName() + " (" + login + "/" + password + ")");
                     }
                     try {
                         Thread.sleep(1000);

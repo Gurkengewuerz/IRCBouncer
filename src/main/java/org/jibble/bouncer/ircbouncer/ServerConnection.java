@@ -182,8 +182,8 @@ public class ServerConnection extends PircBot {
 
     @Override
     public void onJoin(String channel, String sender, String login, String hostname) {
-        System.out.println("JOINED: " + channel);
         if (!channels.contains(channel)) {
+            System.out.println("JOINED: " + channel);
             channels.add(channel);
             try {
                 user.getSaver().override();
@@ -195,8 +195,8 @@ public class ServerConnection extends PircBot {
 
     @Override
     public void onPart(String channel, String sender, String login, String hostname) {
-        System.out.println("LEAVED: " + channel);
         if (channels.contains(channel)) {
+            System.out.println("LEAVED: " + channel);
             channels.remove(channel);
             try {
                 user.getSaver().override();

@@ -17,7 +17,7 @@ package org.jibble.bouncer.ircbouncer;
 
 public class User {
 
-    Saver saver;
+    private Saver saver;
     
     public User(String login, String password) {
         this.login = login;
